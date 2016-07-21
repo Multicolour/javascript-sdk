@@ -19,8 +19,8 @@ class JavaScript_SDK_Generator {
 
       // Set config.
       this.config = Object.assign({
-        destination: __dirname,
-        old_ie_compatibility: false
+        module_name: "API",
+        destination: __dirname
       }, multicolour.get("config").get("settings").javascript_sdk)
 
       // Ensure the neccesary folders exist.
@@ -102,7 +102,7 @@ class JavaScript_SDK_Generator {
     })
 
     // Compile the library.
-    browserify(`${target}/lib.js`)
+    browserify(`${target}/lib.js`, { standalone: this.config.module_name })
       .transform(require("babelify"), {
         presets: [ require.resolve("babel-preset-es2015") ],
         moduleRoot: __dirname
