@@ -26,7 +26,7 @@ class API {
   }
 
   negotiate(content_type) {
-    this.headers.remove("Content-Type")
+    this.headers.delete("Content-Type")
     this.headers.append("Content-Type", content_type)
     return this
   }
