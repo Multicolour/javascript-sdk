@@ -54,11 +54,11 @@ class API {
     return new Promise((reject, resolve) => {
       // If we have a payload, validate it against the model.
       if (options.body) {
-        const validation = this.validate(options.body, this.schemas[schema])
+        const validation = this.validate(options.body)
 
         // Check for errors and reject the promise.
-        if (validation.errors) {
-          return reject(validation.errors)
+        if (validation.error) {
+          return reject(validation.error)
         }
         else {
           options.body = JSON.stringify(options.body)
