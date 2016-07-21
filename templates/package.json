@@ -1,0 +1,15 @@
+{
+  "name": "api_sdk",
+  "version": "1.0.0",
+  "description": "API SDK",
+  "main": "api.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "newworldcode <hello@newworld.codes> (https://newworld.codes)",
+  "license": "MIT",
+  "dependencies": {
+    "joi": "^9.0.1",
+    "waterline-joi": "^1.0.12"
+  }
+}
