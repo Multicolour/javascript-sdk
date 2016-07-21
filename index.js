@@ -14,11 +14,6 @@ class JavaScript_SDK_Generator {
         throw new Error("An instance of Multicolour must be passed into SDK generator.")
       }
 
-      // If we haven't yet scanned, do it.
-      if (!multicolour.get("has_scanned")) {
-        multicolour.scan()
-      }
-
       // Get the models.
       this.models = multicolour.get("database").get("models")
 
@@ -48,6 +43,7 @@ class JavaScript_SDK_Generator {
       // Exit the iteration if there's nothing we can do.
       if (model.junctionTable || model.NO_AUTO_GEN_ROUTES) continue
 
+      // Load the schema template file.
       fs.readFile(require.resolve("./templates/schema.js"), (err, content) => {
         if (err) {
           throw err
@@ -64,6 +60,10 @@ class JavaScript_SDK_Generator {
         // Replace the vars in the template.
         content = content.replace(/\${schema}/g, schema)
         content = content.replace(/\${model}/g, model_text)
+
+        // I'm pretty sure there's a way not to do this
+        // and change how browserify loads modules but this works
+        // for now.
         content = content.replace("\"waterline-joi\"", `"${__dirname}/node_modules/waterline-joi"`)
 
         // Write the schemas.
