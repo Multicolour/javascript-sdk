@@ -1,4 +1,3 @@
-/* global fetch URLSearchParams Headers */
 "use strict"
 
 /*!
