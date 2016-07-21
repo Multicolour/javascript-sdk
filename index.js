@@ -94,7 +94,7 @@ class JavaScript_SDK_Generator {
     })
 
     export_string += lib_import_string + `\n\n`
-    export_string += "export default " + JSON.stringify(lib_export_object, null, 2).replace(/"/g, "")
+    export_string += "module.exports = " + JSON.stringify(lib_export_object, null, 2).replace(/"/g, "")
 
     // Write the lib file.
     fs.writeFile(`${target}/lib.js`, export_string, err => {
