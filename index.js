@@ -98,6 +98,7 @@ class JavaScript_SDK_Generator {
     // Copy the package.json if people want to distribute their SDK.
     fs.copySync(require.resolve("./templates/package.json"), `${target}/package.json`)
     fs.copySync(require.resolve("./LICENSE"), `${target}/LICENSE`)
+    fs.copySync(require.resolve("./templates/.eslintrc.json"), `${target}/.eslintrc.json`)
 
     let lib_import_string = ""
     let lib_export_object = {}

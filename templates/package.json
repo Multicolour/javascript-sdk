@@ -2,13 +2,13 @@
   "name": "api_sdk",
   "version": "1.0.0",
   "description": "API SDK",
-  "main": "api.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "main": "lib.js",
   "author": "newworldcode <hello@newworld.codes> (https://newworld.codes)",
   "license": "MIT",
   "dependencies": {
     "waterline-joi": "^1.0.12"
+  },
+  "devDependencies": {
+    "eslint": "^3.1.1"
   }
 }
