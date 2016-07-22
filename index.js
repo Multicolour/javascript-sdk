@@ -1,27 +1,37 @@
 "use strict"
 
-Error.stackTraceDepth = Infinity
-
+// Get tools.
 const fs = require("fs-extra")
 const mkdirp = require("mkdirp")
 const browserify = require("browserify")
+const chalk = require("chalk")
 
 class JavaScript_SDK_Generator {
   register(multicolour) {
+    // Check we got an instance of Multicolour.
+    if (!multicolour) {
+      throw new Error("An instance of Multicolour must be passed into SDK generator.")
+    }
+
+    // Set config.
+    this.config = Object.assign({
+      module_name: "API",
+      destination: __dirname,
+
+      // This isn't necessarily going to be in the
+      // javascript_sdk block so we ask Multicolour
+      // for it by default.
+      api_root: multicolour.request("api_root")
+    }, multicolour.get("config").get("settings").javascript_sdk)
+
+    // When the database has started, start the generation.
     multicolour.on("database_started", () => {
-      // Check we got an instance of Multicolour.
-      if (!multicolour) {
-        throw new Error("An instance of Multicolour must be passed into SDK generator.")
-      }
+      /* eslint-disable */
+      console.info(chalk.blue.bold("SDK: Starting SDK build"))
+      /* eslint-enable*/
 
       // Get the models.
       this.models = multicolour.get("database").get("models")
-
-      // Set config.
-      this.config = Object.assign({
-        module_name: "API",
-        destination: __dirname
-      }, multicolour.get("config").get("settings").javascript_sdk)
 
       // Ensure the neccesary folders exist.
       mkdirp(this.config.destination)
@@ -40,7 +50,7 @@ class JavaScript_SDK_Generator {
     for (let schema in this.models) {
       const model = this.models[schema]
 
-      // Exit the iteration if there's nothing we can do.
+      // Exit the iteration if there's nothing we can or should do.
       if (model.junctionTable || model.NO_AUTO_GEN_ROUTES) continue
 
       // Load the schema template file.
@@ -61,22 +71,31 @@ class JavaScript_SDK_Generator {
         content = content.replace(/\${schema}/g, schema)
         content = content.replace(/\${model}/g, model_text)
 
-        // I'm pretty sure there's a way not to do this
-        // and change how browserify loads modules but this works
-        // for now.
-        content = content.replace("\"waterline-joi\"", `"${__dirname}/node_modules/waterline-joi"`)
-
         // Write the schemas.
         fs.writeFile(`${target}/schemas/${schema}.js`, content, err => {
-          if (err) {
-            throw err
-          }
+          if (err) throw err
+          /* eslint-disable */
+          console.info(chalk.blue("SDK: Wrote %s"), `${target}/schemas/${schema}.js`)
+          /* eslint-enable*/
         })
       })
     }
 
-    // Copy the lib stuff.
-    fs.copySync(require.resolve("./templates/api.js"), `${target}/api.js`)
+    fs.readFile(require.resolve("./templates/api.js"), (err, content) => {
+      content = content
+        .toString()
+        .replace(/\${api_root}/g, this.config.api_root)
+
+      fs.writeFile(`${target}/api.js`, content, err => {
+        if (err) throw err
+
+        /* eslint-disable */
+        console.info(chalk.blue("SDK: Wrote %s"), `${target}/api.js`)
+        /* eslint-enable*/
+      })
+    })
+
+    // Copy the package.json if people want to distribute their SDK.
     fs.copySync(require.resolve("./templates/package.json"), `${target}/package.json`)
 
     let lib_import_string = ""
@@ -99,16 +118,33 @@ class JavaScript_SDK_Generator {
     // Write the lib file.
     fs.writeFile(`${target}/lib.js`, export_string, err => {
       if (err) throw err
+      /* eslint-disable */
+      console.info(chalk.blue("SDK: Wrote %s"), `${target}/lib.js`)
+      /* eslint-enable*/
     })
 
-    // Compile the library.
-    browserify(`${target}/lib.js`, { standalone: this.config.module_name })
+    // Compile the library for ES5 and UMD.
+    browserify(`${target}/lib.js`, {
+      standalone: this.config.module_name,
+      paths: [ __dirname + "/node_modules" ]
+    })
       .transform(require("babelify"), {
-        presets: [ require.resolve("babel-preset-es2015") ],
-        moduleRoot: __dirname
+        presets: [ require.resolve("babel-preset-es2015") ]
       })
       .bundle()
       .pipe(fs.createWriteStream(`${target}/api.bundle.js`))
+      .on("finish", () => {
+        /* eslint-disable */
+        console.info(chalk.blue("SDK: Wrote %s"), `${target}/api.bundle.js`)
+        console.info(chalk.green.bold("SDK: Finished SDK build 🎉"))
+        /* eslint-enable*/
+      })
+      .on("error", error => {
+        /* eslint-disable */
+        console.error(chalk.red.bold("SDK: SDK build failed"))
+        /* eslint-enable*/
+        throw error
+      })
   }
 }
 
