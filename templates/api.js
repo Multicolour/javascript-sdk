@@ -107,24 +107,30 @@ class API {
   }
 
   update(search, payload) {
+    const id = search.id || ""
+    delete search.id
     const qs = API.query_string(search)
-    return this.fetch(`${this.root}?${qs}`, {
+    return this.fetch(`${this.root}/${id}?${qs}`, {
       method: "PATCH",
       body: payload
     })
   }
 
   update_or_create(search, payload) {
+    const id = search.id || ""
+    delete search.id
     const qs = API.query_string(search)
-    return this.fetch(`${this.root}?${qs}`, {
+    return this.fetch(`${this.root}/${id}?${qs}`, {
       method: "PUT",
       body: payload
     })
   }
 
   delete(search) {
+    const id = search.id || ""
+    delete search.id
     const qs = API.query_string(search)
-    return this.fetch(`${this.root}?${qs}`, {
+    return this.fetch(`${this.root}/${id}?${qs}`, {
       method: "DELETE"
     })
   }
