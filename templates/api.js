@@ -9,6 +9,7 @@
  * the API and validation/sanitation based on your models.
  *
  * Copyright Get Multicolour https://getmulticolour.com 2016
+ * MIT License.
  */
 class API {
 
@@ -55,34 +56,40 @@ class API {
     const schema = url.split("/")[0]
     const write_ops = new Set(["POST", "PATCH", "PUT"])
 
-    // If we have a payload, validate it against the model.
-    if (options.body || (options.method && write_ops.has(options.method.toUpperCase()))) {
-      // Check there was a body at all.
-      if (!options.body) return reject(new Error("Payload must be an object"))
-
-      // validate it if there was.
-      const validation = this.validate(options.body)
-
-      // Check for errors and reject the promise.
-      if (validation.error) {
-        return reject(validation.error)
-      }
-      else {
-        options.body = JSON.stringify(options.body)
-      }
-    }
-
-    // Add the headers to the options.
-    options.headers = this.headers
-
     // Return the method.
-    return fetch(this.api_root + url, options)
+    return new Promise((resolve, reject) => {
+      // If we have a payload, validate it against the model.
+      if (options.body || (options.method && write_ops.has(options.method.toUpperCase()))) {
+        // Check there was a body at all.
+        if (!options.body) return reject(new Error("Payload must be an object"))
+
+        // validate it if there was.
+        const validation = this.validate(options.body)
+
+        // Check for errors and reject the promise.
+        if (validation.error) {
+          return reject(validation.error)
+        }
+        else {
+          options.body = JSON.stringify(options.body)
+        }
+      }
+
+      // Add the headers to the options.
+      options.headers = this.headers
+
+      // Make the request.
+      return fetch(this.api_root + url, options)
+        .then(resolve)
+        .catch(reject)
+    })
   }
 
   // Alias some verbs for the die-hards.
   get post() { return this.create }
   get new() { return this.create }
   get read() { return this.get }
+  get search() { return this.get }
   get put() { return this.update_or_create }
   get patch() { return this.update }
   get remove() { return this.delete }
