@@ -19,14 +19,19 @@ class API {
   }
 
   constructor() {
+    // Where is our API?
+    this.api_root = "${api_root}"
+
+    // The default headers.
     this.headers = new Headers({
-      "Content-Type": "application/json"
+      Accept: "application/json"
     })
   }
 
   negotiate(content_type) {
-    this.headers.delete("Content-Type")
-    this.headers.append("Content-Type", content_type)
+    // Otherwise, go ahead and set it.
+    this.headers.delete("Accept")
+    this.headers.append("Accept", content_type)
     return this
   }
 
@@ -48,36 +53,39 @@ class API {
   fetch(url, options = {}) {
     // Get the schema name from the url.
     const schema = url.split("/")[0]
+    const write_ops = new Set(["POST", "PATCH", "PUT"])
 
-    // Return a promise wrapper around the original fetch api.
-    return new Promise((reject, resolve) => {
-      // If we have a payload, validate it against the model.
-      if (options.body) {
-        const validation = this.validate(options.body)
+    // If we have a payload, validate it against the model.
+    if (options.body || (options.method && write_ops.has(options.method.toUpperCase()))) {
+      // Check there was a body at all.
+      if (!options.body) return reject(new Error("Payload must be an object"))
 
-        // Check for errors and reject the promise.
-        if (validation.error) {
-          return reject(validation.error)
-        }
-        else {
-          options.body = JSON.stringify(options.body)
-        }
+      // validate it if there was.
+      const validation = this.validate(options.body)
+
+      // Check for errors and reject the promise.
+      if (validation.error) {
+        return reject(validation.error)
       }
+      else {
+        options.body = JSON.stringify(options.body)
+      }
+    }
 
-      // Add the headers to the options.
-      options.headers = this.headers
+    // Add the headers to the options.
+    options.headers = this.headers
 
-      // Return the method.
-      return fetch(url, options)
-        .then(resolve)
-        .catch(reject)
-    })
+    // Return the method.
+    return fetch(this.api_root + url, options)
   }
 
-  // Alias post to create for the die-hards.
-  get post() {
-    return this.create
-  }
+  // Alias some verbs for the die-hards.
+  get post() { return this.create }
+  get new() { return this.create }
+  get read() { return this.get }
+  get put() { return this.update_or_create }
+  get patch() { return this.update }
+  get remove() { return this.delete }
 
   get(search) {
     const qs = API.query_string(search)
