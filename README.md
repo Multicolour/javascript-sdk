@@ -2,12 +2,12 @@
 
 Generate your front end JavaScript SDK for use with your Multicolour API.
 
-This generates:
+**This generates:**
 
 * ES6 modules/classes to consume and extend in your modern apps.
 * ES5, UMD bundled app to use wherever and whenever.
 
-It features:
+**It features:**
 
 * Fetch promise interface (does **not** come with the [Polyfill](https://github.com/github/fetch) you should conditionally load this)
 * Client side validation that matches server side validation.
@@ -15,7 +15,7 @@ It features:
 * A natural API, I.E `API.person.get` and `API.person.create`, etc.
 * Content negotiation so you can choose how, what & when to consume your data.
 
-Browser support:
+**Browser support:**
 
 Latest on all browsers (more testing coming soon)
 
@@ -48,7 +48,7 @@ settings: {
     // Where to write the SDK to.
     destination: `${__dirname}/content/frontend/build/api_sdk`,
 
-    //
+    // The module name that is exported.
     module_name: "API_SDK"
   }
   ...
