@@ -9,7 +9,6 @@
   "author": "newworldcode <hello@newworld.codes> (https://newworld.codes)",
   "license": "MIT",
   "dependencies": {
-    "joi": "^9.0.1",
     "waterline-joi": "^1.0.12"
   }
 }
