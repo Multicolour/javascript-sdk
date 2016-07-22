@@ -17,6 +17,7 @@ class JavaScript_SDK_Generator {
     this.config = Object.assign({
       module_name: "API",
       destination: __dirname,
+      debug: multicolour.get("env") === "development",
 
       // This isn't necessarily going to be in the
       // javascript_sdk block so we ask Multicolour
@@ -128,9 +129,16 @@ class JavaScript_SDK_Generator {
     // Compile the library for ES5 and UMD.
     browserify(`${target}/lib.js`, {
       standalone: this.config.module_name,
-      paths: [ __dirname + "/node_modules" ]
+      paths: [ __dirname + "/node_modules" ],
+      debug: this.config.debug
     })
       .transform(require("babelify"), {
+        global: true,
+        ignore: /moment|crypto/,
+        plugins: [
+          require.resolve("babel-plugin-transform-es2015-block-scoping"),
+          require.resolve("babel-plugin-transform-object-assign")
+        ],
         presets: [ require.resolve("babel-preset-es2015") ]
       })
       .bundle()
