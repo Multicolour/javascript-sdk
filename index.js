@@ -98,7 +98,7 @@ class JavaScript_SDK_Generator {
 
     // Copy the package.json if people want to distribute their SDK.
     fs.copySync(require.resolve("./templates/package.json"), `${target}/package.json`)
-    fs.copySync(require.resolve("./LICENSE"), `${target}/LICENSE`)
+    fs.copySync(require.resolve("./templates/LICENSE"), `${target}/LICENSE`)
     fs.copySync(require.resolve("./templates/.eslintrc.json"), `${target}/.eslintrc.json`)
 
     let lib_import_string = ""
@@ -127,34 +127,36 @@ class JavaScript_SDK_Generator {
     })
 
     // Compile the library for ES5 and UMD.
-    browserify(`${target}/lib.js`, {
-      standalone: this.config.module_name,
-      paths: [ __dirname + "/node_modules" ],
-      debug: this.config.debug
-    })
-      .transform(require("babelify"), {
-        global: true,
-        ignore: /moment|crypto/,
-        plugins: [
-          require.resolve("babel-plugin-transform-es2015-block-scoping"),
-          require.resolve("babel-plugin-transform-object-assign")
-        ],
-        presets: [ require.resolve("babel-preset-es2015") ]
+    if (!this.config.hasOwnProperty("es5") || this.config.es5 === true) {
+      browserify(`${target}/lib.js`, {
+        standalone: this.config.module_name,
+        paths: [ __dirname + "/node_modules" ],
+        debug: this.config.debug
       })
-      .bundle()
-      .pipe(fs.createWriteStream(`${target}/api.bundle.js`))
-      .on("finish", () => {
-        /* eslint-disable */
-        console.info(chalk.blue("SDK: Wrote %s"), `${target}/api.bundle.js`)
-        console.info(chalk.green.bold("SDK: Finished SDK build 🎉"))
-        /* eslint-enable*/
-      })
-      .on("error", error => {
-        /* eslint-disable */
-        console.error(chalk.red.bold("SDK: SDK build failed"))
-        /* eslint-enable*/
-        throw error
-      })
+        .transform(require("babelify"), {
+          global: true,
+          ignore: /moment|crypto/,
+          plugins: [
+            require.resolve("babel-plugin-transform-es2015-block-scoping"),
+            require.resolve("babel-plugin-transform-object-assign")
+          ],
+          presets: [ require.resolve("babel-preset-es2015") ]
+        })
+        .bundle()
+        .pipe(fs.createWriteStream(`${target}/api.bundle.js`))
+        .on("finish", () => {
+          /* eslint-disable */
+          console.info(chalk.blue("SDK: Wrote %s"), `${target}/api.bundle.js`)
+          console.info(chalk.green.bold("SDK: Finished SDK build 🎉"))
+          /* eslint-enable*/
+        })
+        .on("error", error => {
+          /* eslint-disable */
+          console.error(chalk.red.bold("SDK: SDK build failed"))
+          /* eslint-enable*/
+          throw error
+        })
+    }
   }
 }
 
