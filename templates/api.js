@@ -26,6 +26,7 @@ class API {
   constructor() {
     // Where is our API?
     this.api_root = "${api_root}"
+    this.socket_root = "${socket_root}"
 
     // The default headers.
     this.headers = new Headers({
@@ -33,7 +34,7 @@ class API {
     })
 
     if (typeof Client !== "undefined") {
-      this.socket = new Client("ws://" + this.api_root)
+      this.socket = new Client("ws://" + this.socket_root)
     }
   }
 
