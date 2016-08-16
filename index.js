@@ -87,6 +87,12 @@ class JavaScript_SDK_Generator {
         .toString()
         .replace(/\${api_root}/g, this.config.api_root)
 
+      // If no sockets value or sockets is true, add support for sockets.
+      if (!this.config.hasOwnProperty("sockets") || this.config.sockets === true)
+        content = content.replace(/\${sockets_import}/g, "import Client from \"nes\"")
+      else
+        content = content.replace(/\${sockets_import}\n/g, "")
+
       fs.writeFile(`${target}/api.js`, content, err => {
         if (err) throw err
 

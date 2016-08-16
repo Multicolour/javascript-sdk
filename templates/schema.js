@@ -8,6 +8,7 @@ class ${schema}_API extends API {
     super()
 
     this.root = "/${schema}"
+    this.id = ${schema}
     this.schema = waterline_joi(${model})
   }
 }
