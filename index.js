@@ -16,19 +16,19 @@ class JavaScript_SDK_Generator {
     // Set config.
     this.config = Object.assign({
       module_name: "API",
-      destination: __dirname,
-      debug: multicolour.get("env") === "development",
+      destination: __dirname + "/../../",
 
-      // This isn't necessarily going to be in the
+      // These aren't necessarily going to be in the
       // javascript_sdk block so we ask Multicolour
-      // for it by default.
-      api_root: multicolour.request("api_root")
+      // for them by default.
+      api_root: multicolour.get("server").get("api_root"),
+      socket_root: multicolour.get("server").get("api_root").replace("http://", "")
     }, multicolour.get("config").get("settings").javascript_sdk)
 
     // When the database has started, start the generation.
     multicolour.on("database_started", () => {
       /* eslint-disable */
-      console.info(chalk.blue.bold("SDK: Starting SDK build"))
+      console.info(chalk.blue.bold("SDK: Starting SDK build %s"), this.config.destination)
       /* eslint-enable*/
 
       // Get the models.
@@ -71,6 +71,7 @@ class JavaScript_SDK_Generator {
         // Replace the vars in the template.
         content = content.replace(/\${schema}/g, schema)
         content = content.replace(/\${model}/g, model_text)
+        content = content.replace(/\${socket_root}/g, this.config.socket_root)
 
         // Write the schemas.
         fs.writeFile(`${target}/schemas/${schema}.js`, content, err => {
@@ -86,10 +87,11 @@ class JavaScript_SDK_Generator {
       content = content
         .toString()
         .replace(/\${api_root}/g, this.config.api_root)
+        .replace(/\${socket_root}/g, this.config.socket_root)
 
       // If no sockets value or sockets is true, add support for sockets.
       if (!this.config.hasOwnProperty("sockets") || this.config.sockets === true)
-        content = content.replace(/\${sockets_import}/g, "import Client from \"nes\"")
+        content = content.replace(/\${sockets_import}/g, "import {Client} from \"nes\"")
       else
         content = content.replace(/\${sockets_import}\n/g, "")
 
