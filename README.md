@@ -1,5 +1,7 @@
 # Multicolour Javascript SDK
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/Multicolour/javascript-sdk.svg)](https://greenkeeper.io/)
+
 Generate your front end JavaScript SDK for use with your Multicolour API.
 
 **This generates:**
