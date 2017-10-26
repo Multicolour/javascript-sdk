@@ -30,16 +30,27 @@ your_service.use(require("multicolour-javascript-sdk"))
 Then client side you can import your `api.bundle.js` or individual models and run your API, e.g
 
 ```js
+// ES5
+const API = require("./api.bundle")
 API.person
   .create({ name: "Get Multicolour SDK generator" })
   .then(function(response) { return response.json() })
   .then(function(person) { console.log(person) })
   .catch(my_error_handler)
+
+// ES6
+import person_API from "./api/schemas/person"
+
+person_API
+  .create({ name: "Get Multicolour SDK generator" })
+  .then(response => response.json())
+  .then(person => console.log(person))
+  .catch(my_error_handler)
 ```
 
 ### Configuration
 
-There are two settings you can change via your `config.js`:
+There are a few settings you can change via your Multicolour `config.js`:
 
 ```
 settings: {
@@ -48,8 +59,11 @@ settings: {
     // Where to write the SDK to.
     destination: `${__dirname}/content/frontend/build/api_sdk`,
 
-    // The module name that is exported.
-    module_name: "API_SDK"
+    // The module name that is exported to in ES5. Requires es5: true
+    module_name: "API_SDK",
+
+    // Bundle the API into an ES5 UMD module.
+    es5: true
   }
   ...
 }
@@ -125,7 +139,7 @@ If you have authorisation on your API, you need to add the `Authorisation` heade
 
 We have plans for implementing an authentication interface but are still deciding how best to do it.
 
-In the short term, this need only be run once and affects all future requests on that schema in the memory of the browser.
+In the short term, this needs to only be run once and affects all future requests on that schema in the memory of the browser.
 
 ```
 const headers = API.{schema}.headers
@@ -133,7 +147,7 @@ headers.append("Authorization", "Your magic password/token")
 
 API.{schema}
     .create({ test: "test" })
-    .then(function(response) { return response.json() })
+    .then(response => response.json())
     .then(console.log.bind(console))
     .catch(console.error.bind(console))
 ```

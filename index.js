@@ -22,7 +22,7 @@ class JavaScript_SDK_Generator {
       // javascript_sdk block so we ask Multicolour
       // for them by default.
       api_root: multicolour.get("server").get("api_root"),
-      socket_root: multicolour.get("server").get("api_root").replace("http://", "")
+      socket_root: multicolour.get("server").get("api_root").replace("http://", ""),
     }, multicolour.get("config").get("settings").javascript_sdk)
 
     // When the database has started, start the generation.
@@ -69,7 +69,7 @@ class JavaScript_SDK_Generator {
         content = content.toString()
 
         // Replace the vars in the template.
-        content = content.replace(/\${schema}/g, schema)
+        content = content.replace(/\${schema}/g, schema.replace(/(\-)/gi, "_"))
         content = content.replace(/\${model}/g, model_text)
         content = content.replace(/\${socket_root}/g, this.config.socket_root)
 
@@ -111,7 +111,7 @@ class JavaScript_SDK_Generator {
 
     let lib_import_string = ""
     let lib_export_object = {}
-    let export_string = `"use strict"\n\n`
+    let export_string = "\"use strict\"\n\n"
 
     // Get the targets.
     const targets = Object.keys(this.models)
@@ -119,11 +119,13 @@ class JavaScript_SDK_Generator {
 
     // Create some more strings.
     targets.forEach(target => {
-      lib_import_string += `import ${target}_API from "./schemas/${target}"\n`
-      lib_export_object[target] = `new ${target}_API()`
+      const name = target.replace(/(\-)/gi, "_")
+
+      lib_import_string += `import ${name}_API from "./schemas/${target}"\n`
+      lib_export_object[name] = `new ${name}_API()`
     })
 
-    export_string += lib_import_string + `\n\n`
+    export_string += lib_import_string + "\n\n"
     export_string += "module.exports = " + JSON.stringify(lib_export_object, null, 2).replace(/"/g, "")
 
     // Write the lib file.
@@ -135,20 +137,20 @@ class JavaScript_SDK_Generator {
     })
 
     // Compile the library for ES5 and UMD.
-    if (!this.config.hasOwnProperty("es5") || this.config.es5 === true) {
+    if (this.config.hasOwnProperty("es5") || this.config.es5 === true) {
       browserify(`${target}/lib.js`, {
         standalone: this.config.module_name,
         paths: [ __dirname + "/node_modules" ],
-        debug: this.config.debug
+        debug: this.config.debug,
       })
         .transform(require("babelify"), {
           global: true,
           ignore: /moment|crypto/,
           plugins: [
             require.resolve("babel-plugin-transform-es2015-block-scoping"),
-            require.resolve("babel-plugin-transform-object-assign")
+            require.resolve("babel-plugin-transform-object-assign"),
           ],
-          presets: [ require.resolve("babel-preset-es2015") ]
+          presets: [ require.resolve("babel-preset-es2015") ],
         })
         .bundle()
         .pipe(fs.createWriteStream(`${target}/api.bundle.js`))
