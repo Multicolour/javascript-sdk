@@ -24,15 +24,15 @@ class API {
     this.api_root = "http://localhost:1811"
 
     // The default headers.
-    this.headers = new Headers({
-      Accept: "application/json"
-    })
+    this.headers = {
+      accept: "application/json"
+    }
   }
 
   negotiate(content_type) {
     // Otherwise, go ahead and set it.
-    this.headers.delete("Accept")
-    this.headers.append("Accept", content_type)
+    delete this.headers.accept
+    this.headers.accept = content_type
     return this
   }
 
