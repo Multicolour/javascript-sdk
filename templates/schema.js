@@ -7,7 +7,7 @@ class ${schema}_API extends API {
   constructor() {
     super()
 
-    this.root = "/${schema}"
+    this.root = "/${raw_schema}"
     this.id = "${schema}"
     this.schema = waterline_joi(${model})
   }

@@ -69,6 +69,7 @@ class JavaScript_SDK_Generator {
         content = content.toString()
 
         // Replace the vars in the template.
+        content = content.replace(/\${raw_schema}/g, schema)
         content = content.replace(/\${schema}/g, schema.replace(/(\-)/gi, "_"))
         content = content.replace(/\${model}/g, model_text)
         content = content.replace(/\${socket_root}/g, this.config.socket_root)
@@ -91,7 +92,7 @@ class JavaScript_SDK_Generator {
 
       // If no sockets value or sockets is true, add support for sockets.
       if (!this.config.hasOwnProperty("sockets") || this.config.sockets === true)
-        content = content.replace(/\${sockets_import}/g, "import {Client} from \"nes\"")
+        content = content.replace(/\${sockets_import}/g, "import { Client } from \"nes\"")
       else
         content = content.replace(/\${sockets_import}\n/g, "")
 
@@ -137,7 +138,7 @@ class JavaScript_SDK_Generator {
     })
 
     // Compile the library for ES5 and UMD.
-    if (this.config.hasOwnProperty("es5") || this.config.es5 === true) {
+    if (this.config.hasOwnProperty("es5") && this.config.es5 === true) {
       browserify(`${target}/lib.js`, {
         standalone: this.config.module_name,
         paths: [ __dirname + "/node_modules" ],
