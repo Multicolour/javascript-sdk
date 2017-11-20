@@ -55,33 +55,28 @@ class API {
     // Get the schema name from the url.
     const write_ops = new Set(["POST", "PATCH", "PUT"])
 
-    // Return the method.
-    return new Promise((resolve, reject) => {
-      // If we have a payload, validate it against the model.
-      if (options.body || (options.method && write_ops.has(options.method.toUpperCase()))) {
-        // Check there was a body at all.
-        if (!options.body) return reject(new Error("Payload must be an object"))
+    // If we have a payload, validate it against the model.
+    if (options.body || (options.method && write_ops.has(options.method.toUpperCase()))) {
+      // Check there was a body at all.
+      if (!options.body) return Promise.reject(new Error("Payload must be an object"))
 
-        // validate it if there was.
-        const validation = this.validate(options.body)
+      // validate it if there was.
+      const validation = this.validate(options.body)
 
-        // Check for errors and reject the promise.
-        if (validation.error) {
-          return reject(validation.error)
-        }
-        else {
-          options.body = JSON.stringify(options.body)
-        }
+      // Check for errors and reject the promise.
+      if (validation.error) {
+        return Promise.reject(validation.error)
       }
+      else {
+        options.body = JSON.stringify(options.body)
+      }
+    }
 
-      // Add the headers to the options.
-      options.headers = this.headers
+    // Add the headers to the options.
+    options.headers = this.headers
 
-      // Make the request.
-      return fetch(this.api_root + url, options)
-        .then(resolve)
-        .catch(reject)
-    })
+    // Make the request.
+    return fetch(this.api_root + url, options)
   }
 
   // Alias some verbs for the die-hards.
