@@ -1,6 +1,6 @@
 {
   "name": "multicolour-javascript-sdk",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "generate a JavaScript SDK from your Multicolour models.",
   "main": "index.js",
   "scripts": {

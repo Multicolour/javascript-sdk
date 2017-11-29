@@ -21,7 +21,7 @@ class API {
 
   constructor() {
     // Where is our API?
-    this.api_root = "http://localhost:1811"
+    this.api_root = "http://0.0.0.0:1811"
 
     // The default headers.
     this.headers = {
