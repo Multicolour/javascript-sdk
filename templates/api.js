@@ -15,7 +15,12 @@ class API {
 
   static query_string(search) {
     const qs = new URLSearchParams()
-    for (let key in search) qs.append(key, search[key])
+    for (let key in search) {
+      if (Array.isArray(search[key]))
+        search[key].forEach(value => qs.append(`${key}[]`, value))
+      else
+        qs.append(key, search[key])
+    }
     return qs
   }
 
