@@ -32,7 +32,7 @@
     "fs-extra": "^4.0.2",
     "joi": "^13.0.2",
     "joi-browser": "^13.0.1",
-    "mkdirp": "^0.5.1",
+    "mkdirp": "^0.5.2",
     "moment": "^2.19.2",
     "waterline-joi": "^1.1.2"
   },
